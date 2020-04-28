@@ -2,19 +2,34 @@
 #include <string>
 #include <fstream>
 // #include <cmath>
-// #include <chrono>
+#include <chrono>
 #include <stdint.h>
 #include <random>
-// #include <bitset>
+#include <bitset>
+#include <algorithm>
 
 typedef unsigned long long pint;
 
 using namespace std;
 
 int kk(pint* int_list){
-	// Perform Karmarkar-Karp Algorithm
+	//TODO get size of array
+	int length = 100;
+	sort(int_list, int_list + length); 
+	pint sum = 0; 
+	while (sum != -1){
+		//Check to see if we are done
+		sum = 0;
+		for (int i = 0; i < length - 1; i++) 
+			//We use length - 1 here because we are done exactly when the second-to-last element is assigned to zero
+			sum = sum + int_list[i];
+		sum = sum - 1; 
+		//This is a hacky way to ensure the program only terminates when the sum is nonzero.
+	//update
+	}
 	return 0;
 }
+
 int rr(pint* int_list){	
 	// Perform Repeated Random Algorithm
 	return 0;
@@ -39,6 +54,7 @@ int psa(pint* int_list){
 	// Perform Prepartitioned Simulated Annealing Algorithm
 	return 0;
 }
+
 
 pint* read_in(string filename, pint* data){
 	fstream in_file(filename);
