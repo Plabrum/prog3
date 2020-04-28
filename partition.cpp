@@ -3,53 +3,60 @@
 #include <fstream>
 // #include <cmath>
 // #include <chrono>
-//Does this work?
+#include <stdint.h>
+#include <random>
+// #include <bitset>
+
+typedef unsigned long long pint;
+
 using namespace std;
 
-int kk(int* ints){
+int kk(pint* int_list){
 	// Perform Karmarkar-Karp Algorithm
 	return 0;
 }
-int rr(int* ints){	
+int rr(pint* int_list){	
 	// Perform Repeated Random Algorithm
 	return 0;
 }
-int hc(int* ints){	
+int hc(pint* int_list){	
 	// Perform Hill Climbing Algorithm
 	return 0;
 }
-int sa(int* ints){	
+int sa(pint* int_list){	
 	// Perform Simulated Annealing Algorithm
 	return 0;
 }
-int prr(int* ints){	
+int prr(pint* int_list){	
 	// Perform Prepartitioned Repeated random Algorithm
 	return 0;
 }
-int phc(int* ints){	
+int phc(pint* int_list){	
 	// Perform Prepartitioned Hill Climbing Algorithm
 	return 0;
 }
-int psa(int* ints){	
+int psa(pint* int_list){	
 	// Perform Prepartitioned Simulated Annealing Algorithm
 	return 0;
 }
 
-int* read_in(string filename){
+pint* read_in(string filename, pint* data){
 	fstream in_file(filename);
 	if (in_file.is_open())
 	{	string line;
 
 		int i = 0;
-		int *data = new int[100];
+		// pint data[100];
 
 		while (getline(in_file,line)){
-			data_all[i] = stoi(line)
+			cout << "reading in line " << i << ": " << line << " as : " << stoull(line) << "\n";
+			data[i] = stoull(line);
+			cout << "stored as: " << data[i] << endl;
 			i++;
 		}
 		// Close file because we have already stored the array
 		in_file.close();
-		return data_all;
+		return data;
 	}
 	else {
 		cout << "Unable to open file";
@@ -57,7 +64,29 @@ int* read_in(string filename){
 	}
 }
 
-void write_out(string filename, int* data){
+pint* generate(){
+	pint data[100];
+	for (int i=0; i < 100; i++){
+		// rand only provides 31 randomized bits on Mac OS
+		unsigned int a = rand();
+		unsigned int b = rand();
+		unsigned int c = rand() % 2;
+		unsigned int d = rand() % 2;	
+
+		c = c << 31;
+		a = c+a;
+		d = d << 31;
+		b = d+b;
+
+		pint combined = a;
+		combined = combined << 32;
+		combined += b;
+		data[i] = combined + b;
+	}
+	return data;
+}
+
+void write_out(string filename, pint* data){
 	fstream out_file(filename);
 	if (out_file.is_open()){
 		for (int i=0; i<100; i++){
@@ -66,6 +95,22 @@ void write_out(string filename, int* data){
 		out_file.close();
 	}
 	else cout << "unable to open output file \n";
+}
+
+void print_out(pint* dat){
+	for (int i=0; i<100; i++){
+		cout << i+1 << ": " << dat[i] << "\n";
+	}
+}
+
+string to_bin_32(pint inp){
+	std::string bin = std::bitset<32>(inp).to_string();
+	return bin;
+}
+
+string to_bin_64(pint inp){
+	std::string bin = std::bitset<64>(inp).to_string();
+	return bin;
 }
 
 int main(int argc, char *argv[]){
@@ -77,8 +122,13 @@ int main(int argc, char *argv[]){
 	int setting = stoi(argv[1]);
 	int algorithm = stoi(argv[2]);
 	string filename = argv[3];
-	int* input_array = read_in(filename);
-	int residue;
+	int residue = 0;
+
+	pint input_array[100];
+	read_in(filename, input_array);
+
+	// Seed rand
+	srand ( time(NULL) );
 
 	switch(algorithm) {
 	case 0 :
@@ -111,12 +161,10 @@ int main(int argc, char *argv[]){
 		break;
    }
 
-	// Change global debug bool to print out dims during strassen
-	debug = false;
-
 	if (setting == 0){
 		// Run normal Program, no extraneous prints
 		cout << residue << endl;
 	}
+
 	return 0;
 }
