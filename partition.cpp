@@ -9,12 +9,15 @@
 #include <algorithm>
 #include <vector>
 #include <typeinfo>
+#include <ctime>    // For time()
+#include <cstdlib>  // For srand() and rand()
 
 typedef unsigned long long pint;
 
 using namespace std;
 
 const bool debug = true;
+const int iterations = 25;
 
 //Helper functions
 pint secondlargest(vector<pint> v){
@@ -82,8 +85,24 @@ int kk(pint* int_list){
 	return 0;
 }
 
-int rr(pint* int_list){	
-	// Perform Repeated Random Algorithm
+int rr(pint* int_list, int max_iter){	
+	int length = 50;
+	pint inputarray[length];
+   	for (int i = 0; i < length; i++){
+   		inputarray[i] = int_list[i];
+   	}
+   	//May have to make this a pint vector if multiplication int*pint is buggy
+   	int solution[100];
+   	//cout << "Time is" << time(NULL);
+   	
+   	for (int i = 0; i < max_iter; i++){
+     	solution[i] = (rand() % 2);
+     	if (solution[i] == 0){
+     		solution[i] = -1;
+     	}
+        cout << solution[i];
+   	}
+
 	return 0;
 }
 int hc(pint* int_list){	
@@ -205,7 +224,7 @@ int main(int argc, char *argv[]){
 		break;
 	case 1 :
 			// Use Repeated Random Algorithm
-			residue = rr(input_array);
+			residue = rr(input_array, iterations);
 		break;
 	case 2 :
 			// Use Hill Climbing Algorithm
