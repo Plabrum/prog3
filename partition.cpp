@@ -39,18 +39,18 @@ pint secondlargest(vector<pint> v){
 	}
 }
 
-int kk(pint* int_list){
+int kk(vector<pint> inputvector){
 	//TODO get size of array
-	int length = 5;
+	int length = inputvector.size();
 	cout << "Doing KK" << endl;
 	// Print input list
-	cout << "Input list: \n" << endl;
-	print_out(int_list);
+	// cout << "Input list: \n" << endl;
+	// print_out(int_list);
 
-    vector <pint> inputvector;
-   	for (int i = 0; i < length; i++){
-   		inputvector.push_back(int_list[i]);
-   	}
+ //    vector <pint> inputvector;
+ //   	for (int i = 0; i < length; i++){
+ //   		inputvector.push_back(int_list[i]);
+ //   	}
    	make_heap(inputvector.begin(), inputvector.end());
    	if (debug){
    		for (int i = 0; i < length; i++){
@@ -93,71 +93,69 @@ int kk(pint* int_list){
 	return 0;
 }
 
-int rr(pint* int_list, int max_iter){	
-	int length = 50;
-	pint inputarray[length];
-   	for (int i = 0; i < length; i++){
-   		inputarray[i] = int_list[i];
-   	}
-   	//May have to make this a pint vector if multiplication int*pint is buggy
-   	int solution[100];
-   	//cout << "Time is" << time(NULL);
+int rr(vector<pint> inputvector, int max_iter){	
+	// int length = 50;
+	// pint inputarray[length];
+ //   	for (int i = 0; i < length; i++){
+ //   		inputarray[i] = int_list[i];
+ //   	}
+ //   	//May have to make this a pint vector if multiplication int*pint is buggy
+ //   	int solution[100];
+ //   	//cout << "Time is" << time(NULL);
    	
-   	for (int i = 0; i < max_iter; i++){
-     	solution[i] = (rand() % 2);
-     	if (solution[i] == 0){
-     		solution[i] = -1;
-     	}
-        cout << solution[i];
-   	}
+ //   	for (int i = 0; i < max_iter; i++){
+ //     	solution[i] = (rand() % 2);
+ //     	if (solution[i] == 0){
+ //     		solution[i] = -1;
+ //     	}
+ //        cout << solution[i];
+ //   	}
 
 	return 0;
 }
-int hc(pint* int_list){	
+int hc(vector<pint> inputvector){	
 	// Perform Hill Climbing Algorithm
 	return 0;
 }
-int sa(pint* int_list){	
+int sa(vector<pint> inputvector){	
 	// Perform Simulated Annealing Algorithm
 	return 0;
 }
-int prr(pint* int_list){	
+int prr(vector<pint> inputvector){	
 	// Perform Prepartitioned Repeated random Algorithm
 	return 0;
 }
-int phc(pint* int_list){	
+int phc(vector<pint> inputvector){	
 	// Perform Prepartitioned Hill Climbing Algorithm
 	return 0;
 }
-int psa(pint* int_list){	
+int psa(vector<pint> inputvector){	
 	// Perform Prepartitioned Simulated Annealing Algorithm
 	return 0;
 }
 
 
-pint* read_in(string filename, pint* data){
+vector<pint> read_in(string filename){
 	fstream in_file(filename);
-
+	vector<pint> data_out;
 	if (in_file.is_open())
 	{	string line;
-		int i = 0;
 		while (getline(in_file,line)){
-			data[i] = stoull(line);
-			i++;
+			data_out.push_back(stoull(line));
 		}
 		// Close file
 		in_file.close();
-		return data;
+		return data_out;
 	}
 	else {
 		cout << "Unable to open file";
-		return NULL;
+		return data_out;
 	}
 }
 
-pint* generate(){
-	pint data[100];
-	for (int i=0; i < 100; i++){
+vector<pint> generate(int length){
+	vector<pint> data;
+	for (int i=0; i < length; i++){
 		// rand only provides 31 randomized bits on Mac OS
 		unsigned int a = rand();
 		unsigned int b = rand();
@@ -172,17 +170,21 @@ pint* generate(){
 		pint combined = a;
 		combined = combined << 32;
 		combined += b;
-		data[i] = combined + b;
+		data.push_back(combined + b);
 	}
 	return data;
 }
 
-void write_out(string filename, pint* data){
+void write_out(string filename, vector<pint> v){
 	fstream out_file(filename);
 	if (out_file.is_open()){
-		for (int i=0; i<100; i++){
-			out_file << data[i] << "\n";
+		for (vector<pint>::iterator i = v.begin(); i!=v.end(); ++i){
+			cout << "writing out: " << *i <<endl;
+			// out_file << v[i] << "\n";
 		}
+		// for (int i=0; i<100; i++){
+		// 	out_file << data[i] << "\n";
+		// }
 		out_file.close();
 	}
 	else cout << "unable to open output file \n";
@@ -209,8 +211,7 @@ int main(int argc, char *argv[]){
 	string filename = argv[3];
 	int residue = 0;
 
-	pint input_array[5];
-	read_in(filename, input_array);
+	vector<pint> input_vec = read_in(filename);
 
 	// Seed rand
 	srand ( time(NULL) );
@@ -218,31 +219,31 @@ int main(int argc, char *argv[]){
 	switch(algorithm) {
 	case 0 :
 			// Use Karmarkar-Karp Algorithm
-			residue = kk(input_array);
+			residue = kk(input_vec);
 		break;
 	case 1 :
 			// Use Repeated Random Algorithm
-			residue = rr(input_array, iterations);
+			residue = rr(input_vec, iterations);
 		break;
 	case 2 :
 			// Use Hill Climbing Algorithm
-			residue = hc(input_array);
+			residue = hc(input_vec);
 		break;
 	case 3 :
 			// Use Simulated Annealing Algorithm
-			residue = sa(input_array);
+			residue = sa(input_vec);
 		break;
 	case 11 :
 			// Use Prepartitioned Repeated random Algorithm
-			residue = prr(input_array);
+			residue = prr(input_vec);
 		break;
 	case 12 :
 			// Use Prepartitioned Hill Climbing Algorithm
-			residue = phc(input_array);
+			residue = phc(input_vec);
 		break;
 	case 13:
 			// Use Prepartitioned Simulated Annealing Algorithm
-			residue = psa(input_array);
+			residue = psa(input_vec);
 		break;
    }
 
