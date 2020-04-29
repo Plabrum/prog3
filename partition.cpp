@@ -7,26 +7,78 @@
 #include <random>
 #include <bitset>
 #include <algorithm>
+#include <vector>
+#include <typeinfo>
 
 typedef unsigned long long pint;
 
 using namespace std;
 
+const bool debug = true;
+
+//Helper functions
+pint secondlargest(vector<pint> v){
+	//We assume v is a binary heap
+	//cout << "top two: " << v[1] << ", " << v[2] << endl;
+	if (v[1] > v[2]){
+		//cout << v[1] << endl;
+		return 1;
+	}
+	else {
+		//cout << v[2];
+		return 2;
+	}
+}
+
 int kk(pint* int_list){
 	//TODO get size of array
-	int length = 100;
-	sort(int_list, int_list + length); 
-	pint sum = 0; 
-	while (sum != -1){
-		//Check to see if we are done
-		sum = 0;
-		for (int i = 0; i < length - 1; i++) 
-			//We use length - 1 here because we are done exactly when the second-to-last element is assigned to zero
-			sum = sum + int_list[i];
-		sum = sum - 1; 
-		//This is a hacky way to ensure the program only terminates when the sum is nonzero.
-	//update
-	}
+	int length = 50;
+	cout << "kk initiated" << endl;
+	cout << int_list << endl;
+
+    vector <pint> inputvector;
+   	for (int i = 0; i < length; i++){
+   		inputvector.push_back(int_list[i]);
+   	}
+   	make_heap(inputvector.begin(), inputvector.end());
+   	if (debug){
+   		for (int i = 0; i < length; i++){
+   			cout << inputvector[i] << endl;
+   		}
+   	}
+   	
+
+   	while (inputvector[secondlargest(inputvector)] != 0){
+   		pint subtractor = inputvector[secondlargest(inputvector)];
+   		if (debug){
+   			cout << "subtractor is: " << subtractor << endl;
+   			cout << "largest number is: " << inputvector[0] << endl;
+   		}
+   		inputvector[0] = inputvector[0] - subtractor;
+   		inputvector[secondlargest(inputvector)] = 0;
+
+   		make_heap(inputvector.begin(), inputvector.end());
+   		for (int i = 0; i < length; i++){
+   			if (debug == true){
+   				cout << inputvector[i] << "    ";
+   			}
+   		}
+   		if (debug){
+   			cout << endl;
+   		}
+   	}
+   	if (debug == true){
+   		cout << "end ofintermediate heaps" << endl;
+   		for (int i = 0; i < length; i++){
+   			cout << inputvector[i] << endl;
+   		}
+   		cout << "End of printed vector";
+   		cout << inputvector.front();
+   	}
+   	return inputvector.front();
+
+	//vector<pint> v{ begin(int_list), end(int_list)};
+	
 	return 0;
 }
 
