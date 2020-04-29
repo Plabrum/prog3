@@ -11,6 +11,8 @@
 #include <typeinfo>
 #include <ctime>    // For time()
 #include <cstdlib>  // For srand() and rand()
+#include <functional>
+
 
 typedef unsigned long long pint;
 
@@ -93,25 +95,35 @@ int kk(vector<pint> inputvector){
 	return 0;
 }
 
-int rr(vector<pint> inputvector, int max_iter){	
-	// int length = 50;
-	// pint inputarray[length];
- //   	for (int i = 0; i < length; i++){
- //   		inputarray[i] = int_list[i];
- //   	}
- //   	//May have to make this a pint vector if multiplication int*pint is buggy
- //   	int solution[100];
- //   	//cout << "Time is" << time(NULL);
-   	
- //   	for (int i = 0; i < max_iter; i++){
- //     	solution[i] = (rand() % 2);
- //     	if (solution[i] == 0){
- //     		solution[i] = -1;
- //     	}
- //        cout << solution[i];
- //   	}
+int rr(vector<pint> inputvector, int max_iter){		
+	cout << "Started rr";
+	int length = inputvector.size();
+   	vector <pint> solution;
+   	for (int i = 0; i < max_iter; i++){
+   		cout << "i is " << i << endl;
+   		for (int j = 0; j < length; j++){
+     		cout << "j is " << j << endl;
+     		solution.push_back((rand() % 2));
+     		cout << solution[j] << endl;
+     		if (solution[j] == 0){
+     			solution[j] = solution[j] - 1;
+     		}
+        	if (debug){
+        		cout << solution[j] << endl;
+        	}
+        }
+       	//Calculate the residue
 
-	return 0;
+
+        //RIP this elegant way of getting the residue
+        //Try it.
+        //pint currentresidue = inner_product(inputvector.begin(), inputvector.end(), solution.begin(), 0);
+
+   	}
+   	
+   	pint residue = 0;
+
+   	return residue;
 }
 int hc(vector<pint> inputvector){	
 	// Perform Hill Climbing Algorithm
