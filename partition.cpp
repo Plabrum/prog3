@@ -19,6 +19,12 @@ using namespace std;
 const bool debug = true;
 const int iterations = 25;
 
+void print_out(pint* dat){
+	for (int i=0; i<5; i++){
+		cout << i+1 << ": " << dat[i] << "\n";
+	}
+}
+
 //Helper functions
 pint secondlargest(vector<pint> v){
 	//We assume v is a binary heap
@@ -35,9 +41,11 @@ pint secondlargest(vector<pint> v){
 
 int kk(pint* int_list){
 	//TODO get size of array
-	int length = 50;
-	cout << "kk initiated" << endl;
-	cout << int_list << endl;
+	int length = 5;
+	cout << "Doing KK" << endl;
+	// Print input list
+	cout << "Input list: \n" << endl;
+	print_out(int_list);
 
     vector <pint> inputvector;
    	for (int i = 0; i < length; i++){
@@ -129,19 +137,15 @@ int psa(pint* int_list){
 
 pint* read_in(string filename, pint* data){
 	fstream in_file(filename);
+
 	if (in_file.is_open())
 	{	string line;
-
 		int i = 0;
-		// pint data[100];
-
 		while (getline(in_file,line)){
-			cout << "reading in line " << i << ": " << line << " as : " << stoull(line) << "\n";
 			data[i] = stoull(line);
-			cout << "stored as: " << data[i] << endl;
 			i++;
 		}
-		// Close file because we have already stored the array
+		// Close file
 		in_file.close();
 		return data;
 	}
@@ -184,12 +188,6 @@ void write_out(string filename, pint* data){
 	else cout << "unable to open output file \n";
 }
 
-void print_out(pint* dat){
-	for (int i=0; i<100; i++){
-		cout << i+1 << ": " << dat[i] << "\n";
-	}
-}
-
 string to_bin_32(pint inp){
 	std::string bin = std::bitset<32>(inp).to_string();
 	return bin;
@@ -202,7 +200,7 @@ string to_bin_64(pint inp){
 
 int main(int argc, char *argv[]){
 	if (argc != 4){
-		cout << "format is ./partition 0 algorithm inputfile";
+		cout << "format is ./partition 0 algorithm inputfile.txt";
 		return 0;
 	}
 
@@ -211,7 +209,7 @@ int main(int argc, char *argv[]){
 	string filename = argv[3];
 	int residue = 0;
 
-	pint input_array[100];
+	pint input_array[5];
 	read_in(filename, input_array);
 
 	// Seed rand
@@ -249,6 +247,10 @@ int main(int argc, char *argv[]){
    }
 
 	if (setting == 0){
+		// Run normal Program, no extraneous prints
+		cout << residue << endl;
+	}
+	if (setting == 1){
 		// Run normal Program, no extraneous prints
 		cout << residue << endl;
 	}
