@@ -12,7 +12,7 @@
 #include <ctime>    // For time()
 #include <cstdlib>  // For srand() and rand()
 #include <functional>
-
+#include <Climits>
 
 typedef unsigned long long pint;
 
@@ -43,7 +43,7 @@ pint secondlargest(vector<pint> v){
 	}
 }
 
-int kk(vector<pint> inputvector){  
+signed long long kk(vector<pint> inputvector){  
 	int length = inputvector.size();
 	cout << "Doing KK" << endl;
 
@@ -70,13 +70,13 @@ int kk(vector<pint> inputvector){
    	return inputvector.front();
 }
 
-int rr(vector<pint> inputvector, int max_iter){		
+signed long long rr(vector<pint> inputvector, int max_iter){		
 	cout << "Started rr with";
 	print_vec(inputvector);
 	int length = inputvector.size();
 
    	vector <pint> solution;
-   	signed long long best_residue = INT_MAX;
+   	signed long long best_residue = LLONG_MAX; //hardcoded intmax for sll
    	for (int iter = 0; iter < max_iter; iter++){
    		// generate a random S 
    		vector<pint> s;
@@ -103,9 +103,9 @@ int rr(vector<pint> inputvector, int max_iter){
      		best_residue = current_residue;
      	}
     }
-   	return (int) best_residue;
+   	return best_residue;
 }
-int hc(vector<pint> inputvector, int max_iter){	
+signed long long hc(vector<pint> inputvector, int max_iter){	
 	// Perform Hill Climbing Algorithm
 	cout << "Started hc with";
 	print_vec(inputvector);
@@ -115,12 +115,15 @@ int hc(vector<pint> inputvector, int max_iter){
    	for (int j = 0; j < length; j++){
 		solution.push_back(rand() % 2);
 	}
-   	signed long long best_residue = INT_MAX;
+   	signed long long best_residue = LLONG_MAX;
    	for (int iter = 0; iter < max_iter; iter++){
    		// Pick two random positions
-   		int pos_one = rand() % length + 1;
-   		int pos_two = rand() % length + 1;
-   		bool change_one = rand() %2;
+   		int pos_one = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
+   		int pos_two = rand() % length;
+   		while (pos_two == pos_one){
+   			pos_two = rand() % length; //we need i =/= j. interestingly, this change brings our worst-case runtime to infinity
+   		}
+   		bool change_one = 1; //I believe they want us to implement this such that the first change always happens and the second change happens 1/2 the time. Why? I have no idea.
    		bool change_two = rand() %2;
    		vector<pint> s = solution;
    		s[pos_one] = (s[pos_one] + change_one) % 2;
@@ -143,14 +146,63 @@ int hc(vector<pint> inputvector, int max_iter){
      	if (current_residue < best_residue){
      		if (debug) cout << "Found new best residue" << endl;
      		best_residue = current_residue;
+     		solution = s; 
      	}
     }
-   	return (int) best_residue;
+   	return best_residue;
 }
-int sa(vector<pint> inputvector){	
-	// Perform Simulated Annealing Algorithm
-	return 0;
+int sa(vector<pint> inputvector, int max_iter){	
+	// Perform Hill Climbing Algorithm
+	cout << "Started sa with";
+	print_vec(inputvector);
+	int length = inputvector.size();
+
+   	vector <pint> solution;
+   	for (int j = 0; j < length; j++){
+		solution.push_back(rand() % 2);
+	}
+   	signed long long best_residue = LLONG_MAX;
+   	for (int iter = 0; iter < max_iter; iter++){
+   		// Pick two random positions
+   		int pos_one = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
+   		int pos_two = rand() % length;
+   		while (pos_two == pos_one){
+   			pos_two = rand() % length; //we need i =/= j. interestingly, this change brings our worst-case runtime to infinity
+   		}
+   		bool change_one = 1; //I believe they want us to implement this such that the first change always happens and the second change happens 1/2 the time. Why? I have no idea.
+   		bool change_two = rand() %2;
+   		vector<pint> s = solution;
+   		s[pos_one] = (s[pos_one] + change_one) % 2;
+   		s[pos_two] = (s[pos_two] + change_two) % 2;
+     	if (debug) print_vec(s);
+
+     	// calculate the new residue with this S
+     	signed long long current_residue = 0;
+     	for(int k = 0; k<length; k++){
+     		if (s[k] == 0){
+     			current_residue -= inputvector[k];
+     		}
+     		else{
+     			current_residue += inputvector[k];
+     		}
+     	}
+     	current_residue = abs(current_residue);
+     	if (debug) cout << "New residue: " << current_residue << " Current Best residue: " << best_residue << endl;  
+
+     	if (current_residue < best_residue){
+     		if (debug) cout << "Found new best residue" << endl;
+     		best_residue = current_residue;
+     		solution = s; 
+     	}
+     	/*
+     	else{
+     		if (pow rand() % 100 )
+     	}
+     	*/
+    }
+   	return best_residue;
 }
+
 int prr(vector<pint> inputvector){	
 	// Perform Prepartitioned Repeated random Algorithm
 	return 0;
@@ -235,7 +287,7 @@ int main(int argc, char *argv[]){
 	int setting = stoi(argv[1]);
 	int algorithm = stoi(argv[2]);
 	string filename = argv[3];
-	int residue = 0;
+	signed long long residue = 0;
 
 	vector<pint> input_vec = read_in(filename);
 
@@ -257,7 +309,7 @@ int main(int argc, char *argv[]){
 		break;
 	case 3 :
 			// Use Simulated Annealing Algorithm
-			residue = sa(input_vec);
+			residue = sa(input_vec, iterations);
 		break;
 	case 11 :
 			// Use Prepartitioned Repeated random Algorithm
