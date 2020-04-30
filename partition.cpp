@@ -490,25 +490,6 @@ int main(int argc, char *argv[]){
 		// Run normal Program, no extraneous prints
 		cout << "Residue: " << residue << endl;
 	}
-	if (setting == 1){
-		// Run normal Program, no extraneous prints
-		int zeros = 0;
-		int ones = 0;
-		for (int i = 0; i < 100000; i++){
-			int ran = rand() % 2;
-			if (ran == 0){
-				zeros++;
-			}
-			else if (ran == 1){
-				ones++;
-			}
-			else{
-				cout << "we gotta a problem" << endl;
-			}
-		}
-
-		cout << "ones: " << ones <<" zeros" << zeros <<endl;
-	}
 
 	return 0;
 }
