@@ -21,10 +21,12 @@ using namespace std;
 const bool debug = true;
 const int iterations = 25;
 
-void print_out(pint* dat){
-	for (int i=0; i<5; i++){
-		cout << i+1 << ": " << dat[i] << "\n";
+void print_vec(vector<pint> vec){
+	cout << "Vector: ";
+	for (vector<pint>::iterator i = vec.begin(); i!=vec.end(); ++i){
+		cout << *i << ", ";
 	}
+	cout << endl;
 }
 
 //Helper functions
@@ -41,89 +43,67 @@ pint secondlargest(vector<pint> v){
 	}
 }
 
-int kk(vector<pint> inputvector){
-	//TODO get size of array
+int kk(vector<pint> inputvector){  
 	int length = inputvector.size();
 	cout << "Doing KK" << endl;
-	// Print input list
-	// cout << "Input list: \n" << endl;
-	// print_out(int_list);
 
- //    vector <pint> inputvector;
- //   	for (int i = 0; i < length; i++){
- //   		inputvector.push_back(int_list[i]);
- //   	}
    	make_heap(inputvector.begin(), inputvector.end());
-   	if (debug){
-   		for (int i = 0; i < length; i++){
-   			cout << inputvector[i] << endl;
-   		}
-   	}
+   	if (debug) print_vec(inputvector);
    	
-
    	while (inputvector[secondlargest(inputvector)] != 0){
    		pint subtractor = inputvector[secondlargest(inputvector)];
-   		if (debug){
-   			cout << "subtractor is: " << subtractor << endl;
-   			cout << "largest number is: " << inputvector[0] << endl;
-   		}
+   		
+   		if (debug) cout << "subtractor is: " << subtractor << " largest number is: " << inputvector[0] << endl;
+
    		inputvector[0] = inputvector[0] - subtractor;
    		inputvector[secondlargest(inputvector)] = 0;
 
    		make_heap(inputvector.begin(), inputvector.end());
-   		for (int i = 0; i < length; i++){
-   			if (debug == true){
-   				cout << inputvector[i] << "    ";
-   			}
-   		}
-   		if (debug){
-   			cout << endl;
-   		}
+   		if (debug) print_vec(inputvector);
    	}
-   	if (debug == true){
+
+   	if (debug){
    		cout << "end ofintermediate heaps" << endl;
-   		for (int i = 0; i < length; i++){
-   			cout << inputvector[i] << endl;
-   		}
-   		cout << "End of printed vector";
-   		cout << inputvector.front();
+   		print_vec(inputvector);
+   		cout << "End of printed vector: " << inputvector.front() << endl;
    	}
    	return inputvector.front();
-
-	//vector<pint> v{ begin(int_list), end(int_list)};
-	
-	return 0;
 }
 
 int rr(vector<pint> inputvector, int max_iter){		
-	cout << "Started rr";
+	cout << "Started rr with";
+	print_vec(inputvector);
 	int length = inputvector.size();
+
    	vector <pint> solution;
-   	for (int i = 0; i < max_iter; i++){
-   		cout << "i is " << i << endl;
+   	signed long long best_residue = INT_MAX;
+   	for (int iter = 0; iter < max_iter; iter++){
+   		// generate a random S 
+   		vector<pint> s;
    		for (int j = 0; j < length; j++){
-     		cout << "j is " << j << endl;
-     		solution.push_back((rand() % 2));
-     		cout << solution[j] << endl;
-     		if (solution[j] == 0){
-     			solution[j] = solution[j] - 1;
+   			s.push_back(rand() % 2);
+     	}
+     	if (debug) print_vec(s);
+
+     	// calculate the new residue with this S
+     	signed long long current_residue = 0;
+     	for(int k = 0; k<length; k++){
+     		if (s[k] == 0){
+     			current_residue -= inputvector[k];
      		}
-        	if (debug){
-        		cout << solution[j] << endl;
-        	}
-        }
-       	//Calculate the residue
+     		else{
+     			current_residue += inputvector[k];
+     		}
+     	}
+     	current_residue = abs(current_residue);
+     	if (debug) cout << "New residue: " << current_residue << " Current Best residue: " << best_residue << endl;  
 
-
-        //RIP this elegant way of getting the residue
-        //Try it.
-        //pint currentresidue = inner_product(inputvector.begin(), inputvector.end(), solution.begin(), 0);
-
-   	}
-   	
-   	pint residue = 0;
-
-   	return residue;
+     	if (current_residue < best_residue){
+     		if (debug) cout << "Found new best residue" << endl;
+     		best_residue = current_residue;
+     	}
+    }
+   	return (int) best_residue;
 }
 int hc(vector<pint> inputvector){	
 	// Perform Hill Climbing Algorithm
@@ -191,12 +171,8 @@ void write_out(string filename, vector<pint> v){
 	fstream out_file(filename);
 	if (out_file.is_open()){
 		for (vector<pint>::iterator i = v.begin(); i!=v.end(); ++i){
-			cout << "writing out: " << *i <<endl;
-			// out_file << v[i] << "\n";
+			out_file << *i << "\n";
 		}
-		// for (int i=0; i<100; i++){
-		// 	out_file << data[i] << "\n";
-		// }
 		out_file.close();
 	}
 	else cout << "unable to open output file \n";
@@ -261,11 +237,26 @@ int main(int argc, char *argv[]){
 
 	if (setting == 0){
 		// Run normal Program, no extraneous prints
-		cout << residue << endl;
+		cout << "Residue: " << residue << endl;
 	}
 	if (setting == 1){
 		// Run normal Program, no extraneous prints
-		cout << residue << endl;
+		int zeros = 0;
+		int ones = 0;
+		for (int i = 0; i < 100000; i++){
+			int ran = rand() % 2;
+			if (ran == 0){
+				zeros++;
+			}
+			else if (ran == 1){
+				ones++;
+			}
+			else{
+				cout << "we gotta a problem" << endl;
+			}
+		}
+
+		cout << "ones: " << ones <<" zeros" << zeros <<endl;
 	}
 
 	return 0;
