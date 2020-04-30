@@ -12,7 +12,7 @@
 #include <ctime>    // For time()
 #include <cstdlib>  // For srand() and rand()
 #include <functional>
-#include <Climits>
+// #include <Climits>
 
 typedef unsigned long long pint;
 
@@ -75,7 +75,7 @@ signed long long rr(vector<pint> inputvector, int max_iter){
 	print_vec(inputvector);
 	int length = inputvector.size();
 
-   	vector <pint> solution;
+   	// vector <pint> solution; - this doesnt seem to be used here
    	signed long long best_residue = LLONG_MAX; //hardcoded intmax for sll
    	for (int iter = 0; iter < max_iter; iter++){
    		// generate a random S 
@@ -151,6 +151,13 @@ signed long long hc(vector<pint> inputvector, int max_iter){
     }
    	return best_residue;
 }
+
+// Cooling Schedule for Simulated annealing
+pint T(pint iter){
+	// Cooling schedule suggested in spec
+	return pow(10,10) * pow(0.8, (iter / 300)) ; 
+}
+
 int sa(vector<pint> inputvector, int max_iter){	
 	// Perform Hill Climbing Algorithm
 	cout << "Started sa with";
@@ -158,10 +165,12 @@ int sa(vector<pint> inputvector, int max_iter){
 	int length = inputvector.size();
 
    	vector <pint> solution;
+   	vector<pint> best_solution; // S"
    	for (int j = 0; j < length; j++){
 		solution.push_back(rand() % 2);
 	}
    	signed long long best_residue = LLONG_MAX;
+   	signed long long residue = LLONG_MAX;
    	for (int iter = 0; iter < max_iter; iter++){
    		// Pick two random positions
    		int pos_one = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
@@ -189,26 +198,122 @@ int sa(vector<pint> inputvector, int max_iter){
      	current_residue = abs(current_residue);
      	if (debug) cout << "New residue: " << current_residue << " Current Best residue: " << best_residue << endl;  
 
-     	if (current_residue < best_residue){
-     		if (debug) cout << "Found new best residue" << endl;
-     		best_residue = current_residue;
+     	if (current_residue < residue){
+     		if (debug) cout << "Found a better residue" << endl;
+     		residue = current_residue;
      		solution = s; 
      	}
-     	/*
      	else{
-     		if (pow rand() % 100 )
+     		double probability = exp(-(current_residue - best_residue)) / T(iter);
+     		cout << "Probability of move to worse solution";
+     		if (rand() < probability*RAND_MAX){
+     			residue = current_residue;
+     		}
      	}
-     	*/
+
+     	if (residue < best_residue){
+     		best_residue = residue;
+     	}
+     	
     }
    	return best_residue;
 }
 
-int prr(vector<pint> inputvector){	
-	// Perform Prepartitioned Repeated random Algorithm
-	return 0;
+vector<pint> p_to_a_prime(vector<pint> a, vector<pint> p){
+	vector<pint> a_prime;
+	int length = p.size();
+	// Look for all elements in the ith partition
+	for (int i = 0; i < length; i++){
+		// sum for ith partition
+		pint a_sum = 0;
+		for (int j=0; j < length; j++){
+			//loop through p
+			if (p[j] == (pint) i){
+				a_sum += a[i];
+			}
+		}
+		a_prime.push_back(a_sum);
+	}
+	return a_prime;
 }
-int phc(vector<pint> inputvector){	
+
+signed long long prr(vector<pint> inputvector, int max_iter){
+	// Perform Prepartitioned Repeated random Algorithm		
+	cout << "Started prr with";
+	print_vec(inputvector);
+	int length = inputvector.size();
+   	vector <pint> solution;
+   	signed long long best_residue = LLONG_MAX; //hardcoded intmax for sll
+
+   	for (int iter = 0; iter < max_iter; iter++){
+
+   		// Generate a random P
+   		vector<pint> p;
+   		for(int i=0; i<length;i++){
+   			p.push_back(rand() % length);
+   		}
+   		// generate an a_prime from a and p
+   		vector<pint> a_prime = p_to_a_prime(inputvector, p);
+
+   		signed long long current_residue = kk(a_prime);
+
+       	// Determine if this new residue is the best seen
+     	if (debug) cout << "New residue: " << current_residue << " Current Best residue: " << best_residue << endl;  
+
+     	if (current_residue < best_residue){
+     		if (debug) cout << "Found new best residue" << endl;
+     		best_residue = current_residue;
+     	}
+    }
+   	return best_residue;
+}
+
+signed long long phc(vector<pint> inputvector, int max_iter){
 	// Perform Prepartitioned Hill Climbing Algorithm
+	cout << "Started phc with";
+	print_vec(inputvector);
+	int length = inputvector.size();
+
+   	// Generate a random initial p
+	vector<pint> solution;
+	for(int i=0; i<length;i++){
+		solution.push_back(rand() % length);
+	}
+	// initialise best_residue to be as large as possible
+   	signed long long best_residue = LLONG_MAX;
+
+   	for (int iter = 0; iter < max_iter; iter++){
+
+   		// Pick two random positions
+   		int pos_one = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
+   		int pos_two = rand() % length;
+   		while (pos_two == pos_one){
+   			pos_two = rand() % length; //we need i =/= j. interestingly, this change brings our worst-case runtime to infinity
+   		}
+   		bool change_one = 1; //I believe they want us to implement this such that the first change always happens and the second change happens 1/2 the time. Why? I have no idea.
+   		bool change_two = rand() %2;
+
+   		// Move to a random neighbor of P
+   		vector<pint> current_p = solution;
+   		current_p[pos_one] = (current_p[pos_one] + change_one) % 2;
+   		current_p[pos_two] = (current_p[pos_two] + change_two) % 2;
+
+   		// generate an a_prime from a and p
+   		vector<pint> a_prime = p_to_a_prime(inputvector, current_p);
+
+   		signed long long current_residue = kk(a_prime);
+
+       	// Determine if this new residue is the best seen
+     	if (debug) cout << "New residue: " << current_residue << " Current Best residue: " << best_residue << endl;  
+
+     	if (current_residue < best_residue){
+     		if (debug) cout << "Found new best residue" << endl;
+     		solution = current_p;
+     		best_residue = current_residue;
+     	}
+    }
+   	return best_residue;
+
 	return 0;
 }
 int psa(vector<pint> inputvector){	
@@ -313,11 +418,11 @@ int main(int argc, char *argv[]){
 		break;
 	case 11 :
 			// Use Prepartitioned Repeated random Algorithm
-			residue = prr(input_vec);
+			residue = prr(input_vec, iterations);
 		break;
 	case 12 :
 			// Use Prepartitioned Hill Climbing Algorithm
-			residue = phc(input_vec);
+			residue = phc(input_vec, iterations);
 		break;
 	case 13:
 			// Use Prepartitioned Simulated Annealing Algorithm
