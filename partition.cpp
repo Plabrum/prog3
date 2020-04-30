@@ -105,9 +105,47 @@ int rr(vector<pint> inputvector, int max_iter){
     }
    	return (int) best_residue;
 }
-int hc(vector<pint> inputvector){	
+int hc(vector<pint> inputvector, int max_iter){	
 	// Perform Hill Climbing Algorithm
-	return 0;
+	cout << "Started hc with";
+	print_vec(inputvector);
+	int length = inputvector.size();
+
+   	vector <pint> solution;
+   	for (int j = 0; j < length; j++){
+		solution.push_back(rand() % 2);
+	}
+   	signed long long best_residue = INT_MAX;
+   	for (int iter = 0; iter < max_iter; iter++){
+   		// Pick two random positions
+   		int pos_one = rand() % length + 1;
+   		int pos_two = rand() % length + 1;
+   		bool change_one = rand() %2;
+   		bool change_two = rand() %2;
+   		vector<pint> s = solution;
+   		s[pos_one] = (s[pos_one] + change_one) % 2;
+   		s[pos_two] = (s[pos_two] + change_two) % 2;
+     	if (debug) print_vec(s);
+
+     	// calculate the new residue with this S
+     	signed long long current_residue = 0;
+     	for(int k = 0; k<length; k++){
+     		if (s[k] == 0){
+     			current_residue -= inputvector[k];
+     		}
+     		else{
+     			current_residue += inputvector[k];
+     		}
+     	}
+     	current_residue = abs(current_residue);
+     	if (debug) cout << "New residue: " << current_residue << " Current Best residue: " << best_residue << endl;  
+
+     	if (current_residue < best_residue){
+     		if (debug) cout << "Found new best residue" << endl;
+     		best_residue = current_residue;
+     	}
+    }
+   	return (int) best_residue;
 }
 int sa(vector<pint> inputvector){	
 	// Perform Simulated Annealing Algorithm
@@ -215,7 +253,7 @@ int main(int argc, char *argv[]){
 		break;
 	case 2 :
 			// Use Hill Climbing Algorithm
-			residue = hc(input_vec);
+			residue = hc(input_vec, iterations);
 		break;
 	case 3 :
 			// Use Simulated Annealing Algorithm
