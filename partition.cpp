@@ -44,7 +44,7 @@ pint secondlargest(vector<pint> v){
 }
 
 signed long long kk(vector<pint> inputvector){  
-	int length = inputvector.size();
+	// int length = inputvector.size();
 	cout << "Doing KK" << endl;
 
    	make_heap(inputvector.begin(), inputvector.end());
@@ -180,6 +180,8 @@ int sa(vector<pint> inputvector, int max_iter){
    		}
    		bool change_one = 1; //I believe they want us to implement this such that the first change always happens and the second change happens 1/2 the time. Why? I have no idea.
    		bool change_two = rand() %2;
+
+   		// Move to random neightbor of P
    		vector<pint> s = solution;
    		s[pos_one] = (s[pos_one] + change_one) % 2;
    		s[pos_two] = (s[pos_two] + change_two) % 2;
@@ -316,11 +318,65 @@ signed long long phc(vector<pint> inputvector, int max_iter){
 
 	return 0;
 }
-int psa(vector<pint> inputvector){	
-	// Perform Prepartitioned Simulated Annealing Algorithm
-	return 0;
-}
 
+signed long long psa(vector<pint> inputvector, int max_iter){
+	// Perform Prepartitioned Simulated Annealing Algorithm
+	cout << "Started prr with";
+	print_vec(inputvector);
+	int length = inputvector.size();
+
+   	// Generate a random initial p
+	vector<pint> solution;
+	for(int i=0; i<length;i++){
+		solution.push_back(rand() % length);
+	}
+	// initialise best_residue to be as large as possible
+   	signed long long best_residue = LLONG_MAX;
+   	signed long long residue = LLONG_MAX;
+
+   	for (int iter = 0; iter < max_iter; iter++){
+
+   		// Pick two random positions
+   		int pos_one = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
+   		int pos_two = rand() % length;
+   		while (pos_two == pos_one){
+   			pos_two = rand() % length; //we need i =/= j. interestingly, this change brings our worst-case runtime to infinity
+   		}
+   		bool change_one = 1; //I believe they want us to implement this such that the first change always happens and the second change happens 1/2 the time. Why? I have no idea.
+   		bool change_two = rand() %2;
+
+   		// Move to a random neighbor of P
+   		vector<pint> current_p = solution;
+   		current_p[pos_one] = (current_p[pos_one] + change_one) % 2;
+   		current_p[pos_two] = (current_p[pos_two] + change_two) % 2;
+
+   		// generate an a_prime from a and p
+   		vector<pint> a_prime = p_to_a_prime(inputvector, current_p);
+
+   		signed long long current_residue = kk(a_prime);
+
+       	// Determine if this new residue is the best seen
+     	if (debug) cout << "New residue: " << current_residue << " Current Best residue: " << best_residue << endl;  
+
+     	if (current_residue < residue){
+     		if (debug) cout << "Found a better residue" << endl;
+     		residue = current_residue;
+     		solution = current_p; 
+     	}
+     	else{
+     		double probability = exp(-(current_residue - best_residue)) / T(iter);
+     		cout << "Probability of move to worse solution";
+     		if (rand() < probability*RAND_MAX){
+     			residue = current_residue;
+     		}
+     	}
+
+     	if (residue < best_residue){
+     		best_residue = residue;
+     	}
+    }
+   	return best_residue;
+}
 
 vector<pint> read_in(string filename){
 	fstream in_file(filename);
@@ -426,7 +482,7 @@ int main(int argc, char *argv[]){
 		break;
 	case 13:
 			// Use Prepartitioned Simulated Annealing Algorithm
-			residue = psa(input_vec);
+			residue = psa(input_vec, iterations);
 		break;
    }
 
