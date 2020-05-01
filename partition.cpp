@@ -16,10 +16,9 @@
 
 typedef unsigned long long pint;
 
-using namespace std;
+const bool debug = false;
 
-const bool debug = true;
-const int iterations = 25;
+using namespace std;
 
 void print_vec(vector<pint> vec){
 	cout << "Vector: ";
@@ -43,9 +42,9 @@ pint secondlargest(vector<pint> v){
 	}
 }
 
-signed long long kk(vector<pint> inputvector){  
+pint kk(vector<pint> inputvector){  
 	// int length = inputvector.size();
-	cout << "Doing KK" << endl;
+	if (debug) cout << "Doing KK" << endl;
 
    	make_heap(inputvector.begin(), inputvector.end());
    	if (debug) print_vec(inputvector);
@@ -70,9 +69,12 @@ signed long long kk(vector<pint> inputvector){
    	return inputvector.front();
 }
 
-signed long long rr(vector<pint> inputvector, int max_iter){		
-	cout << "Started rr with";
-	print_vec(inputvector);
+pint rr(vector<pint> inputvector, int max_iter){		
+	if (debug){
+		cout << "Started rr with ";
+		print_vec(inputvector);
+	}
+
 	int length = inputvector.size();
 
    	// vector <pint> solution; - this doesnt seem to be used here
@@ -105,10 +107,13 @@ signed long long rr(vector<pint> inputvector, int max_iter){
     }
    	return best_residue;
 }
-signed long long hc(vector<pint> inputvector, int max_iter){	
+
+pint hc(vector<pint> inputvector, int max_iter){	
 	// Perform Hill Climbing Algorithm
-	cout << "Started hc with";
-	print_vec(inputvector);
+	if (debug){
+		cout << "Started hc with ";
+		print_vec(inputvector);
+	}
 	int length = inputvector.size();
 
    	vector <pint> solution;
@@ -158,10 +163,12 @@ pint T(pint iter){
 	return pow(10,10) * pow(0.8, (iter / 300)) ; 
 }
 
-int sa(vector<pint> inputvector, int max_iter){	
+pint sa(vector<pint> inputvector, int max_iter){	
 	// Perform Hill Climbing Algorithm
-	cout << "Started sa with";
-	print_vec(inputvector);
+	if (debug) {
+		cout << "Started sa with ";
+		print_vec(inputvector);
+	}
 	int length = inputvector.size();
 
    	vector <pint> solution;
@@ -207,8 +214,9 @@ int sa(vector<pint> inputvector, int max_iter){
      	}
      	else{
      		double probability = exp(-(current_residue - best_residue)) / T(iter);
-     		cout << "Probability of move to worse solution";
+     		if (debug) cout << "Probability of move to worse solution: "<< probability << endl;
      		if (rand() < probability*RAND_MAX){
+     			cout << "Worse move" << endl;
      			residue = current_residue;
      		}
      	}
@@ -239,10 +247,13 @@ vector<pint> p_to_a_prime(vector<pint> a, vector<pint> p){
 	return a_prime;
 }
 
-signed long long prr(vector<pint> inputvector, int max_iter){
+pint prr(vector<pint> inputvector, int max_iter){
 	// Perform Prepartitioned Repeated random Algorithm		
-	cout << "Started prr with";
-	print_vec(inputvector);
+	if (debug){
+		cout << "Started prr with ";
+		print_vec(inputvector);
+	}
+
 	int length = inputvector.size();
    	vector <pint> solution;
    	signed long long best_residue = LLONG_MAX; //hardcoded intmax for sll
@@ -270,10 +281,12 @@ signed long long prr(vector<pint> inputvector, int max_iter){
    	return best_residue;
 }
 
-signed long long phc(vector<pint> inputvector, int max_iter){
+pint phc(vector<pint> inputvector, int max_iter){
 	// Perform Prepartitioned Hill Climbing Algorithm
-	cout << "Started phc with";
-	print_vec(inputvector);
+	if (debug){
+		cout << "Started phc with ";
+		print_vec(inputvector);
+	}
 	int length = inputvector.size();
 
    	// Generate a random initial p
@@ -319,10 +332,12 @@ signed long long phc(vector<pint> inputvector, int max_iter){
 	return 0;
 }
 
-signed long long psa(vector<pint> inputvector, int max_iter){
+pint psa(vector<pint> inputvector, int max_iter){
 	// Perform Prepartitioned Simulated Annealing Algorithm
-	cout << "Started prr with";
-	print_vec(inputvector);
+	if (debug) {
+		cout << "Started prr with ";
+		print_vec(inputvector);
+	}
 	int length = inputvector.size();
 
    	// Generate a random initial p
@@ -365,7 +380,7 @@ signed long long psa(vector<pint> inputvector, int max_iter){
      	}
      	else{
      		double probability = exp(-(current_residue - best_residue)) / T(iter);
-     		cout << "Probability of move to worse solution";
+     		if (debug) cout << "Probability of move to worse solution "<< probability << endl;
      		if (rand() < probability*RAND_MAX){
      			residue = current_residue;
      		}
@@ -400,20 +415,13 @@ vector<pint> generate(int length){
 	vector<pint> data;
 	for (int i=0; i < length; i++){
 		// rand only provides 31 randomized bits on Mac OS
-		unsigned int a = rand();
-		unsigned int b = rand();
-		unsigned int c = rand() % 2;
-		unsigned int d = rand() % 2;	
-
-		c = c << 31;
-		a = c+a;
-		d = d << 31;
-		b = d+b;
-
-		pint combined = a;
-		combined = combined << 32;
-		combined += b;
-		data.push_back(combined + b);
+		// in order to hit 40 random bits we need 9 more from rand
+		pint a = rand();
+		// get the last 9 bits
+		pint b = rand() % 512;
+		a = a << 9;
+		pint combined = a + b;
+		data.push_back(combined);
 	}
 	return data;
 }
@@ -440,55 +448,107 @@ string to_bin_64(pint inp){
 }
 
 int main(int argc, char *argv[]){
-	if (argc != 4){
-		cout << "format is ./partition 0 algorithm inputfile.txt";
+	if (!(argc == 3) || (argc==4)) {
+		cout << "format is ./partition 0 algorithm inputfile.txt \n";
 		return 0;
 	}
 
 	int setting = stoi(argv[1]);
-	int algorithm = stoi(argv[2]);
-	string filename = argv[3];
-	signed long long residue = 0;
-
-	vector<pint> input_vec = read_in(filename);
+	const int iterations = 25000;
 
 	// Seed rand
 	srand ( time(NULL) );
 
-	switch(algorithm) {
-	case 0 :
-			// Use Karmarkar-Karp Algorithm
-			residue = kk(input_vec);
-		break;
-	case 1 :
-			// Use Repeated Random Algorithm
-			residue = rr(input_vec, iterations);
-		break;
-	case 2 :
-			// Use Hill Climbing Algorithm
-			residue = hc(input_vec, iterations);
-		break;
-	case 3 :
-			// Use Simulated Annealing Algorithm
-			residue = sa(input_vec, iterations);
-		break;
-	case 11 :
-			// Use Prepartitioned Repeated random Algorithm
-			residue = prr(input_vec, iterations);
-		break;
-	case 12 :
-			// Use Prepartitioned Hill Climbing Algorithm
-			residue = phc(input_vec, iterations);
-		break;
-	case 13:
-			// Use Prepartitioned Simulated Annealing Algorithm
-			residue = psa(input_vec, iterations);
-		break;
-   }
-
 	if (setting == 0){
 		// Run normal Program, no extraneous prints
-		cout << "Residue: " << residue << endl;
+
+		int algorithm = stoi(argv[2]);
+		string filename = argv[3];
+		vector<pint> input_vec = read_in(filename);
+		signed long long residue;
+
+		switch(algorithm) {
+			case 0 :
+					// Use Karmarkar-Karp Algorithm
+					residue = kk(input_vec);
+				break;
+			case 1 :
+					// Use Repeated Random Algorithm
+					residue = rr(input_vec, iterations);
+				break;
+			case 2 :
+					// Use Hill Climbing Algorithm
+					residue = hc(input_vec, iterations);
+				break;
+			case 3 :
+					// Use Simulated Annealing Algorithm
+					residue = sa(input_vec, iterations);
+				break;
+			case 11 :
+					// Use Prepartitioned Repeated random Algorithm
+					residue = prr(input_vec, iterations);
+				break;
+			case 12 :
+					// Use Prepartitioned Hill Climbing Algorithm
+					residue = phc(input_vec, iterations);
+				break;
+			case 13:
+					// Use Prepartitioned Simulated Annealing Algorithm
+					residue = psa(input_vec, iterations);
+				break;
+		}
+		cout << residue << endl;
+	}
+	else if (setting == 1){
+
+		string filename = argv[2];
+
+		fstream out_file(filename);
+		if (out_file.is_open()){
+			// Iterate through 100 instances of generated data
+			string header = ",KK,,RR,,HC,,SA,,PRR,,PHC,,PSA, \n Iteration,Result,Runtime,Result,Runtime,Result,Runtime,Result,Runtime,Result,Runtime,Result,Runtime,Result,Runtime";
+			out_file << header << "\n";	
+			for (int i=0; i <100; i++){
+				vector<pint> test_set = generate(100);
+				cout << "Iteration: " << i << endl;
+				out_file << i << ",";
+
+				auto time0 = chrono::high_resolution_clock::now();
+				pint residue1 = kk(test_set);
+				auto time1 = chrono::high_resolution_clock::now();
+				pint residue2 = rr(test_set, iterations);
+				auto time2 = chrono::high_resolution_clock::now();
+				pint residue3 = hc(test_set, iterations);
+				auto time3 = chrono::high_resolution_clock::now();
+				pint residue4 = sa(test_set, iterations);
+				auto time4 = chrono::high_resolution_clock::now();
+				pint residue5 = prr(test_set, iterations);
+				auto time5 = chrono::high_resolution_clock::now();
+				pint residue6 = phc(test_set, iterations);
+				auto time6 = chrono::high_resolution_clock::now();
+				pint residue7 = psa(test_set, iterations);
+				auto time7 = chrono::high_resolution_clock::now();
+
+				// calculating durations
+				auto duration1 = duration_cast<chrono::microseconds>(time1 - time0);
+				auto duration2 = duration_cast<chrono::microseconds>(time2 - time1);
+				auto duration3 = duration_cast<chrono::microseconds>(time3 - time2);
+				auto duration4 = duration_cast<chrono::microseconds>(time4 - time3);
+				auto duration5 = duration_cast<chrono::microseconds>(time5 - time4);
+				auto duration6 = duration_cast<chrono::microseconds>(time6 - time5);
+				auto duration7 = duration_cast<chrono::microseconds>(time7 - time6);
+
+				out_file << residue1 << "," << duration1.count() << ",";
+				out_file << residue2 << "," << duration2.count() << ",";
+				out_file << residue3 << "," << duration3.count() << ",";
+				out_file << residue4 << "," << duration4.count() << ",";
+				out_file << residue5 << "," << duration5.count() << ",";
+				out_file << residue6 << "," << duration6.count() << ",";
+				out_file << residue7 << "," << duration7.count() << "\n";
+			}
+			out_file.close();
+		}
+		else cout << "unable to open output file \n";
 	}
 
 	return 0;
