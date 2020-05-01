@@ -18,8 +18,8 @@ typedef unsigned long long pint;
 
 using namespace std;
 
-const bool debug = true;
-const int iterations = 25;
+const bool debug = false;
+const int iterations = 25000;
 
 void print_vec(vector<pint> vec){
 	cout << "Vector: ";
@@ -62,7 +62,7 @@ vector <pint> max_heapify(vector<pint> input, int node){
 	//cout << "length is" << length << endl;
 	//cout << "maxheapify initiated";
 	//It's literally just an implementation of c++ make_heap
-	cout << node;
+	//cout << node;
 	int left = left_child(node);
 	int right = right_child(node);
 	int largest = node;
@@ -88,7 +88,7 @@ vector <pint> max_heapify(vector<pint> input, int node){
 }
 
 vector <pint> make_heap_2_the_sequel (vector <pint> input){
-    cout << "started makeheap" << endl;
+    //cout << "started makeheap" << endl;
     int size = input.size();
     for (int i = size - 1; i >= 0; --i){
         //cout << i;
@@ -96,7 +96,7 @@ vector <pint> make_heap_2_the_sequel (vector <pint> input){
         input = max_heapify(input, i);
     }
     //cout << "Vector after heapification: ";
-    print_vec(input);
+    //print_vec(input);
     return (input);
 }
 
@@ -113,17 +113,17 @@ signed long long kk(vector<pint> inputvector){
 
    		inputvector[0] = inputvector[0] - subtractor;
    		inputvector[secondlargest(inputvector)] = 0;
-      cout << "Vector after subtraction: ";
-      print_vec(inputvector);
+      //cout << "Vector after subtraction: ";
+      //print_vec(inputvector);
 
    		inputvector = make_heap_2_the_sequel(inputvector);
    		if (debug) print_vec(inputvector);
    	}
 
    	if (debug){
-   		cout << "end ofintermediate heaps" << endl;
+   		//cout << "end ofintermediate heaps" << endl;
    		print_vec(inputvector);
-   		cout << "End of printed vector: " << inputvector.front() << endl;
+   		//cout << "End of printed vector: " << inputvector.front() << endl;
    	}
    	return inputvector.front();
 }
@@ -302,9 +302,8 @@ signed long long prr(vector<pint> inputvector, int max_iter){
 	cout << "Started prr with";
 	print_vec(inputvector);
 	int length = inputvector.size();
-   	vector <pint> solution;
-   	signed long long best_residue = LLONG_MAX; //hardcoded intmax for sll
-
+  vector <pint> solution;
+  signed long long best_residue = LLONG_MAX; //hardcoded intmax for sll
    	for (int iter = 0; iter < max_iter; iter++){
 
    		// Generate a random P
@@ -340,80 +339,87 @@ signed long long phc(vector<pint> inputvector, int max_iter){
 		solution.push_back(rand() % length);
 	}
 	// initialise best_residue to be as large as possible
-   	signed long long best_residue = LLONG_MAX;
+  signed long long best_residue = LLONG_MAX;
+ 	for (int iter = 0; iter < max_iter; iter++){
+ 		// Pick two random positions
+ 		int coordinate = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
+ 		pint newvalue = rand() % length;
+ 		while (solution[coordinate] == newvalue){
+ 			newvalue = rand() % length; //we need i =/= j. interestingly, this change brings our worst-case runtime to infinity
+ 		}
+    /*
+    Here's the old code for jumping to a neighbor in case I was wrong
+ 		bool change_one = 1; //I believe they want us to implement this such that the first change always happens and the second change happens 1/2 the time. Why? I have no idea.
+ 		bool change_two = rand() %2;
+    */
 
-   	for (int iter = 0; iter < max_iter; iter++){
+ 		// Move to a random neighbor of P
+ 		vector<pint> current_p = solution;
+    current_p[coordinate] = newvalue;
+    /*
+    Here's the old code for jumping to a neighbor in case I was wrong
+ 		current_p[pos_one] = (current_p[pos_one] + change_one) % 2;
+ 		current_p[pos_two] = (current_p[pos_two] + change_two) % 2;
+    */
 
-   		// Pick two random positions
-   		int pos_one = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
-   		int pos_two = rand() % length;
-   		while (pos_two == pos_one){
-   			pos_two = rand() % length; //we need i =/= j. interestingly, this change brings our worst-case runtime to infinity
-   		}
-   		bool change_one = 1; //I believe they want us to implement this such that the first change always happens and the second change happens 1/2 the time. Why? I have no idea.
-   		bool change_two = rand() %2;
+ 		// generate an a_prime from a and p
+ 		vector<pint> a_prime = p_to_a_prime(inputvector, current_p);
+ 		signed long long current_residue = kk(a_prime);
 
-   		// Move to a random neighbor of P
-   		vector<pint> current_p = solution;
-   		current_p[pos_one] = (current_p[pos_one] + change_one) % 2;
-   		current_p[pos_two] = (current_p[pos_two] + change_two) % 2;
+    // Determine if this new residue is the best seen
+   	//if (debug) cout << "New residue: " << current_residue << " Current Best residue: " << best_residue << endl;  
 
-   		// generate an a_prime from a and p
-   		vector<pint> a_prime = p_to_a_prime(inputvector, current_p);
-
-   		signed long long current_residue = kk(a_prime);
-
-       	// Determine if this new residue is the best seen
-     	if (debug) cout << "New residue: " << current_residue << " Current Best residue: " << best_residue << endl;  
-
-     	if (current_residue < best_residue){
-     		if (debug) cout << "Found new best residue" << endl;
-     		solution = current_p;
-     		best_residue = current_residue;
-     	}
-    }
-   	return best_residue;
+   	if (current_residue < best_residue){
+   		if (debug) cout << "Found new best residue" << endl;
+   		solution = current_p;
+   		best_residue = current_residue;
+   	}
+  }
+  return best_residue;
 
 	return 0;
 }
 
 signed long long psa(vector<pint> inputvector, int max_iter){
 	// Perform Prepartitioned Simulated Annealing Algorithm
-	cout << "Started prr with";
+	cout << "Started psa with";
 	print_vec(inputvector);
 	int length = inputvector.size();
 
-   	// Generate a random initial p
+  // Generate a random initial p
 	vector<pint> solution;
-	for(int i=0; i<length;i++){
+	for(int i=0; i<length; i++){
 		solution.push_back(rand() % length);
 	}
 	// initialise best_residue to be as large as possible
-   	signed long long best_residue = LLONG_MAX;
-   	signed long long residue = LLONG_MAX;
+  signed long long best_residue = LLONG_MAX;
+  signed long long residue = LLONG_MAX;
 
    	for (int iter = 0; iter < max_iter; iter++){
 
    		// Pick two random positions
-   		int pos_one = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
-   		int pos_two = rand() % length;
-   		while (pos_two == pos_one){
-   			pos_two = rand() % length; //we need i =/= j. interestingly, this change brings our worst-case runtime to infinity
-   		}
+   		int coordinate = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
+      pint newvalue = rand() % length;
+      while (solution[coordinate] == newvalue){
+        newvalue = rand() % length; //we need i =/= j. interestingly, this change brings our worst-case runtime to infinity
+      }
+      /*
    		bool change_one = 1; //I believe they want us to implement this such that the first change always happens and the second change happens 1/2 the time. Why? I have no idea.
    		bool change_two = rand() %2;
-
+      */
    		// Move to a random neighbor of P
-   		vector<pint> current_p = solution;
-   		current_p[pos_one] = (current_p[pos_one] + change_one) % 2;
+      vector<pint> current_p = solution;
+      current_p[coordinate] = newvalue;
+   		
+      /*
+      current_p[pos_one] = (current_p[pos_one] + change_one) % 2;
    		current_p[pos_two] = (current_p[pos_two] + change_two) % 2;
-
+      */
    		// generate an a_prime from a and p
    		vector<pint> a_prime = p_to_a_prime(inputvector, current_p);
 
    		signed long long current_residue = kk(a_prime);
-
-       	// Determine if this new residue is the best seen
+      // Determine if this new residue is the best seen
      	if (debug) cout << "New residue: " << current_residue << " Current Best residue: " << best_residue << endl;  
 
      	if (current_residue < residue){
