@@ -12,9 +12,10 @@
 #include <ctime>    // For time()
 #include <cstdlib>  // For srand() and rand()
 #include <functional>
-#include <Climits> //my machine needs this to know what LLONG_MAX is
+// #include <Climits> 
 
 typedef unsigned long long pint;
+pint LLONG_MAX_local = 9223372036854775807;
 
 const bool debug = false;
 
@@ -55,13 +56,11 @@ int right_child (int i){
 	return (2*(i +1));
 }
 
-
 vector <pint> max_heapify(vector<pint> input, int node){
 	int length = input.size();
 	//cout << "length is" << length << endl;
 	//cout << "maxheapify initiated";
 	//It's literally just an implementation of c++ make_heap
-	cout << node;
 	int left = left_child(node);
 	int right = right_child(node);
 	int largest = node;
@@ -87,24 +86,17 @@ vector <pint> max_heapify(vector<pint> input, int node){
 }
 
 vector <pint> make_heap_2_the_sequel (vector <pint> input){
-    cout << "started makeheap" << endl;
+    if (debug) cout << "started makeheap" << endl;
     int size = input.size();
     for (int i = size - 1; i >= 0; --i){
-        //cout << i;
-        //cout << "maxheapify called  ";
         input = max_heapify(input, i);
     }
-    //cout << "Vector after heapification: ";
-    print_vec(input);
     return (input);
 }
 
 pint kk(vector<pint> inputvector){  
-	  //int length = inputvector.size();
-	  //cout << "Doing KK" << endl;
     inputvector = make_heap_2_the_sequel(inputvector);
    	if (debug) print_vec(inputvector);
-   	
    	while (inputvector[secondlargest(inputvector)] != 0){
    		pint subtractor = inputvector[secondlargest(inputvector)];
    		
@@ -112,9 +104,10 @@ pint kk(vector<pint> inputvector){
 
    		inputvector[0] = inputvector[0] - subtractor;
    		inputvector[secondlargest(inputvector)] = 0;
-      cout << "Vector after subtraction: ";
-      print_vec(inputvector);
-
+      	if (debug) {
+      		cout << "Vector after subtraction: ";
+      		print_vec(inputvector);
+      	}
    		inputvector = make_heap_2_the_sequel(inputvector);
    		if (debug) print_vec(inputvector);
    	}
@@ -136,7 +129,7 @@ pint rr(vector<pint> inputvector, int max_iter){
 	int length = inputvector.size();
 
    	// vector <pint> solution; - this doesnt seem to be used here
-   	signed long long best_residue = LLONG_MAX; //hardcoded intmax for sll
+   	signed long long best_residue = LLONG_MAX_local; //hardcoded intmax for sll
    	for (int iter = 0; iter < max_iter; iter++){
    		// generate a random S 
    		vector<pint> s;
@@ -178,7 +171,7 @@ pint hc(vector<pint> inputvector, int max_iter){
    	for (int j = 0; j < length; j++){
 		solution.push_back(rand() % 2);
 	}
-   	signed long long best_residue = LLONG_MAX;
+   	signed long long best_residue = LLONG_MAX_local;
    	for (int iter = 0; iter < max_iter; iter++){
    		// Pick two random positions
    		int pos_one = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
@@ -234,8 +227,8 @@ pint sa(vector<pint> inputvector, int max_iter){
    	for (int j = 0; j < length; j++){
 		solution.push_back(rand() % 2);
 	}
-   	signed long long best_residue = LLONG_MAX;
-   	signed long long residue = LLONG_MAX;
+   	signed long long best_residue = LLONG_MAX_local;
+   	signed long long residue = LLONG_MAX_local;
    	for (int iter = 0; iter < max_iter; iter++){
    		// Pick two random positions
    		int pos_one = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
@@ -314,7 +307,7 @@ pint prr(vector<pint> inputvector, int max_iter){
 
 	int length = inputvector.size();
    	vector <pint> solution;
-   	signed long long best_residue = LLONG_MAX; //hardcoded intmax for sll
+   	signed long long best_residue = LLONG_MAX_local; //hardcoded intmax for sll
 
    	for (int iter = 0; iter < max_iter; iter++){
 
@@ -353,7 +346,7 @@ pint phc(vector<pint> inputvector, int max_iter){
 		solution.push_back(rand() % length);
 	}
 	// initialise best_residue to be as large as possible
-   	signed long long best_residue = LLONG_MAX;
+   	signed long long best_residue = LLONG_MAX_local;
 
    	for (int iter = 0; iter < max_iter; iter++){
 
@@ -404,8 +397,8 @@ pint psa(vector<pint> inputvector, int max_iter){
 		solution.push_back(rand() % length);
 	}
 	// initialise best_residue to be as large as possible
-   	signed long long best_residue = LLONG_MAX;
-   	signed long long residue = LLONG_MAX;
+   	signed long long best_residue = LLONG_MAX_local;
+   	signed long long residue = LLONG_MAX_local;
 
    	for (int iter = 0; iter < max_iter; iter++){
 
@@ -506,7 +499,7 @@ string to_bin_64(pint inp){
 }
 
 int main(int argc, char *argv[]){
-	if (!(argc == 3) || (argc==4)) {
+	if (!((argc == 3) || (argc==4))) {
 		cout << "format is ./partition 0 algorithm inputfile.txt \n";
 		return 0;
 	}
@@ -588,13 +581,13 @@ int main(int argc, char *argv[]){
 				auto time7 = chrono::high_resolution_clock::now();
 
 				// calculating durations
-				auto duration1 = duration_cast<chrono::microseconds>(time1 - time0);
-				auto duration2 = duration_cast<chrono::microseconds>(time2 - time1);
-				auto duration3 = duration_cast<chrono::microseconds>(time3 - time2);
-				auto duration4 = duration_cast<chrono::microseconds>(time4 - time3);
-				auto duration5 = duration_cast<chrono::microseconds>(time5 - time4);
-				auto duration6 = duration_cast<chrono::microseconds>(time6 - time5);
-				auto duration7 = duration_cast<chrono::microseconds>(time7 - time6);
+				auto duration1 = chrono::duration_cast<chrono::microseconds>(time1 - time0);
+				auto duration2 = chrono::duration_cast<chrono::microseconds>(time2 - time1);
+				auto duration3 = chrono::duration_cast<chrono::microseconds>(time3 - time2);
+				auto duration4 = chrono::duration_cast<chrono::microseconds>(time4 - time3);
+				auto duration5 = chrono::duration_cast<chrono::microseconds>(time5 - time4);
+				auto duration6 = chrono::duration_cast<chrono::microseconds>(time6 - time5);
+				auto duration7 = chrono::duration_cast<chrono::microseconds>(time7 - time6);
 
 				out_file << residue1 << "," << duration1.count() << ",";
 				out_file << residue2 << "," << duration2.count() << ",";
