@@ -43,9 +43,51 @@ pint secondlargest(vector<pint> v){
 	}
 }
 
+int parent(int i){
+	return (floor(i/2));
+}
+
+//this is for readability lol
+int left_child (int i){
+	return (2*i);
+}
+
+int right_child (int i){
+	return (2*i +1);
+}
+
+
+vector <pint> max_heapify(vector<pint> input, int node){
+	int length = input.size();
+	cout << "length is" << length << endl;
+	cout << "maxheapify initiated";
+	//It's literally just an implementation of c++ make_heap
+	cout << node;
+	int left = left_child(node);
+	int right = right_child(node);
+	int largest = node;
+	cout << "left is" << left << endl;
+	if (left < length && input[left] > input[node]) {
+		cout << "left child exists and is bigger than node" << endl;
+		largest = left;
+		cout << "Largest reassigned to" << left << "with value of " << input[left];
+	}
+	if (right < length && input[right] > input[largest]) {
+		cout << "right child exists and is bigger than largest" << endl;
+		largest = right;
+		cout << "Largest reassigned to" << right << "with value of " << input[right];
+	}
+	if (largest != node){
+		swap(input[node], input[largest]); //no idea if this does what i think it does lol
+	}
+	return (input);
+}
+
 signed long long kk(vector<pint> inputvector){  
 	int length = inputvector.size();
 	cout << "Doing KK" << endl;
+	max_heapify(inputvector, 2);
+	//cout << inputvector.end();
 
    	make_heap(inputvector.begin(), inputvector.end());
    	if (debug) print_vec(inputvector);
