@@ -421,7 +421,7 @@ pint psa(vector<pint> inputvector, int max_iter){
    		current_p[pos_two] = (current_p[pos_two] + change_two) % 2;
       */
    		// generate an a_prime from a and p
-   		vector<pint> a_prime = p_to_a_prime(inputvector, current_p);
+   	  vector<pint> a_prime = p_to_a_prime(inputvector, current_p);
 
    		signed long long current_residue = kk(a_prime);
       // Determine if this new residue is the best seen
