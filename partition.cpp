@@ -98,6 +98,16 @@ vector <pint> make_heap_2_the_sequel (vector <pint> input){
     return (input);
 }
 
+vector <pint> make_kkheap (vector <pint> input){
+	//This is a custom function to heapify during a kk operation, to hopefully speed it up
+	//The idea is that you only have to run maxheapify on the first three elements.
+	if (debug) cout << "Started karmaker heap";
+	input = max_heapify(input, 2);
+	input = max_heapify(input, 1);
+	input = max_heapify(input, 0);
+	return (input);
+}
+
 pint kk(vector<pint> inputvector){  
     inputvector = make_heap_2_the_sequel(inputvector);
    	if (debug) print_vec(inputvector);
@@ -112,7 +122,7 @@ pint kk(vector<pint> inputvector){
       		cout << "Vector after subtraction: ";
       		print_vec(inputvector);
       	}
-   		inputvector = make_heap_2_the_sequel(inputvector);
+   		inputvector = make_kkheap(inputvector);
    		if (debug) print_vec(inputvector);
    	}
 
