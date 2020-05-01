@@ -12,9 +12,10 @@
 #include <ctime>    // For time()
 #include <cstdlib>  // For srand() and rand()
 #include <functional>
-#include <Climits> //my machine needs this to know what LLONG_MAX is
+// #include <Climits> 
 
 typedef unsigned long long pint;
+pint LLONG_MAX_local = 9223372036854775807;
 
 const bool debug = false;
 const int iterations = 25000;
@@ -56,7 +57,6 @@ int right_child (int i){
 	return (2*(i +1));
 }
 
-
 vector <pint> max_heapify(vector<pint> input, int node){
 	int length = input.size();
 	//cout << "length is" << length << endl;
@@ -88,11 +88,9 @@ vector <pint> max_heapify(vector<pint> input, int node){
 }
 
 vector <pint> make_heap_2_the_sequel (vector <pint> input){
-    //cout << "started makeheap" << endl;
+    if (debug) cout << "started makeheap" << endl;
     int size = input.size();
     for (int i = size - 1; i >= 0; --i){
-        //cout << i;
-        //cout << "maxheapify called  ";
         input = max_heapify(input, i);
     }
     //cout << "Vector after heapification: ";
@@ -101,11 +99,8 @@ vector <pint> make_heap_2_the_sequel (vector <pint> input){
 }
 
 pint kk(vector<pint> inputvector){  
-	  //int length = inputvector.size();
-	  //cout << "Doing KK" << endl;
     inputvector = make_heap_2_the_sequel(inputvector);
    	if (debug) print_vec(inputvector);
-   	
    	while (inputvector[secondlargest(inputvector)] != 0){
    		pint subtractor = inputvector[secondlargest(inputvector)];
    		
@@ -113,9 +108,10 @@ pint kk(vector<pint> inputvector){
 
    		inputvector[0] = inputvector[0] - subtractor;
    		inputvector[secondlargest(inputvector)] = 0;
-      //cout << "Vector after subtraction: ";
-      //print_vec(inputvector);
-
+      	if (debug) {
+      		cout << "Vector after subtraction: ";
+      		print_vec(inputvector);
+      	}
    		inputvector = make_heap_2_the_sequel(inputvector);
    		if (debug) print_vec(inputvector);
    	}
@@ -137,7 +133,7 @@ pint rr(vector<pint> inputvector, int max_iter){
 	int length = inputvector.size();
 
    	// vector <pint> solution; - this doesnt seem to be used here
-   	signed long long best_residue = LLONG_MAX; //hardcoded intmax for sll
+   	signed long long best_residue = LLONG_MAX_local; //hardcoded intmax for sll
    	for (int iter = 0; iter < max_iter; iter++){
    		// generate a random S 
    		vector<pint> s;
@@ -179,7 +175,7 @@ pint hc(vector<pint> inputvector, int max_iter){
    	for (int j = 0; j < length; j++){
 		solution.push_back(rand() % 2);
 	}
-   	signed long long best_residue = LLONG_MAX;
+   	signed long long best_residue = LLONG_MAX_local;
    	for (int iter = 0; iter < max_iter; iter++){
    		// Pick two random positions
    		int pos_one = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
@@ -235,8 +231,8 @@ pint sa(vector<pint> inputvector, int max_iter){
    	for (int j = 0; j < length; j++){
 		solution.push_back(rand() % 2);
 	}
-   	signed long long best_residue = LLONG_MAX;
-   	signed long long residue = LLONG_MAX;
+   	signed long long best_residue = LLONG_MAX_local;
+   	signed long long residue = LLONG_MAX_local;
    	for (int iter = 0; iter < max_iter; iter++){
    		// Pick two random positions
    		int pos_one = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
@@ -314,8 +310,8 @@ pint prr(vector<pint> inputvector, int max_iter){
 	}
 
 	int length = inputvector.size();
-  vector <pint> solution;
-  signed long long best_residue = LLONG_MAX; //hardcoded intmax for sll
+   	vector <pint> solution;
+   	signed long long best_residue = LLONG_MAX_local; //hardcoded intmax for sll
    	for (int iter = 0; iter < max_iter; iter++){
 
    		// Generate a random P
@@ -353,44 +349,39 @@ pint phc(vector<pint> inputvector, int max_iter){
 		solution.push_back(rand() % length);
 	}
 	// initialise best_residue to be as large as possible
-  signed long long best_residue = LLONG_MAX;
- 	for (int iter = 0; iter < max_iter; iter++){
- 		// Pick two random positions
- 		int coordinate = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
- 		pint newvalue = rand() % length;
- 		while (solution[coordinate] == newvalue){
- 			newvalue = rand() % length; //we need i =/= j. interestingly, this change brings our worst-case runtime to infinity
- 		}
-    /*
-    Here's the old code for jumping to a neighbor in case I was wrong
- 		bool change_one = 1; //I believe they want us to implement this such that the first change always happens and the second change happens 1/2 the time. Why? I have no idea.
- 		bool change_two = rand() %2;
-    */
+   	signed long long best_residue = LLONG_MAX_local;
 
- 		// Move to a random neighbor of P
- 		vector<pint> current_p = solution;
-    current_p[coordinate] = newvalue;
-    /*
-    Here's the old code for jumping to a neighbor in case I was wrong
- 		current_p[pos_one] = (current_p[pos_one] + change_one) % 2;
- 		current_p[pos_two] = (current_p[pos_two] + change_two) % 2;
-    */
+   	for (int iter = 0; iter < max_iter; iter++){
 
- 		// generate an a_prime from a and p
- 		vector<pint> a_prime = p_to_a_prime(inputvector, current_p);
- 		signed long long current_residue = kk(a_prime);
+   		// Pick two random positions
+   		int pos_one = rand() % length; //changed this from length+1, if length is 50 we want mod50 because that group has 50 elements
+   		int pos_two = rand() % length;
+   		while (pos_two == pos_one){
+   			pos_two = rand() % length; //we need i =/= j. interestingly, this change brings our worst-case runtime to infinity
+   		}
+   		bool change_one = 1; //I believe they want us to implement this such that the first change always happens and the second change happens 1/2 the time. Why? I have no idea.
+   		bool change_two = rand() %2;
 
-    // Determine if this new residue is the best seen
-   	//if (debug) cout << "New residue: " << current_residue << " Current Best residue: " << best_residue << endl;  
+   		// Move to a random neighbor of P
+   		vector<pint> current_p = solution;
+   		current_p[pos_one] = (current_p[pos_one] + change_one) % 2;
+   		current_p[pos_two] = (current_p[pos_two] + change_two) % 2;
 
-   	if (current_residue < best_residue){
-   		if (debug) cout << "Found new best residue" << endl;
-   		solution = current_p;
-   		best_residue = current_residue;
-   	}
-  }
-  return best_residue;
+   		// generate an a_prime from a and p
+   		vector<pint> a_prime = p_to_a_prime(inputvector, current_p);
 
+   		signed long long current_residue = kk(a_prime);
+
+       	// Determine if this new residue is the best seen
+     	if (debug) cout << "New residue: " << current_residue << " Current Best residue: " << best_residue << endl;  
+
+     	if (current_residue < best_residue){
+     		if (debug) cout << "Found new best residue" << endl;
+     		solution = current_p;
+     		best_residue = current_residue;
+     	}
+    }
+   	return best_residue;
 	return 0;
 }
 
@@ -406,8 +397,8 @@ pint psa(vector<pint> inputvector, int max_iter){
 		solution.push_back(rand() % length);
 	}
 	// initialise best_residue to be as large as possible
-  signed long long best_residue = LLONG_MAX;
-  signed long long residue = LLONG_MAX;
+   	signed long long best_residue = LLONG_MAX_local;
+   	signed long long residue = LLONG_MAX_local;
 
    	for (int iter = 0; iter < max_iter; iter++){
 
@@ -511,7 +502,7 @@ string to_bin_64(pint inp){
 }
 
 int main(int argc, char *argv[]){
-	if (!(argc == 3) || (argc==4)) {
+	if (!((argc == 3) || (argc==4))) {
 		cout << "format is ./partition 0 algorithm inputfile.txt \n";
 		return 0;
 	}
@@ -593,13 +584,13 @@ int main(int argc, char *argv[]){
 				auto time7 = chrono::high_resolution_clock::now();
 
 				// calculating durations
-				auto duration1 = duration_cast<chrono::microseconds>(time1 - time0);
-				auto duration2 = duration_cast<chrono::microseconds>(time2 - time1);
-				auto duration3 = duration_cast<chrono::microseconds>(time3 - time2);
-				auto duration4 = duration_cast<chrono::microseconds>(time4 - time3);
-				auto duration5 = duration_cast<chrono::microseconds>(time5 - time4);
-				auto duration6 = duration_cast<chrono::microseconds>(time6 - time5);
-				auto duration7 = duration_cast<chrono::microseconds>(time7 - time6);
+				auto duration1 = chrono::duration_cast<chrono::microseconds>(time1 - time0);
+				auto duration2 = chrono::duration_cast<chrono::microseconds>(time2 - time1);
+				auto duration3 = chrono::duration_cast<chrono::microseconds>(time3 - time2);
+				auto duration4 = chrono::duration_cast<chrono::microseconds>(time4 - time3);
+				auto duration5 = chrono::duration_cast<chrono::microseconds>(time5 - time4);
+				auto duration6 = chrono::duration_cast<chrono::microseconds>(time6 - time5);
+				auto duration7 = chrono::duration_cast<chrono::microseconds>(time7 - time6);
 
 				out_file << residue1 << "," << duration1.count() << ",";
 				out_file << residue2 << "," << duration2.count() << ",";
