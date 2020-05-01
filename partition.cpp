@@ -397,8 +397,8 @@ pint phc(vector<pint> inputvector, int max_iter){
 
 pint psa(vector<pint> inputvector, int max_iter){
 	// Perform Prepartitioned Simulated Annealing Algorithm
-	cout << "Started psa with";
-	print_vec(inputvector);
+	//cout << "Started psa with";
+	//print_vec(inputvector);
 	int length = inputvector.size();
 
   // Generate a random initial p
